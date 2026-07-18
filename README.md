@@ -1,3 +1,4 @@
+
 # LBYCPOB Module 5A — Hangman Web App
 
 Spring Boot + Thymeleaf migration of the console Hangman game, built against
@@ -68,3 +69,6 @@ can substitute for them:
   yourself with your "About" identification.
 - **2.10 Guide questions** — review `GUIDE_QUESTIONS.md` and rewrite the
   answers in your own words before submitting.
+
+# LBYCPOB_E22_Module5_Group3_HangmanWebApp
+
