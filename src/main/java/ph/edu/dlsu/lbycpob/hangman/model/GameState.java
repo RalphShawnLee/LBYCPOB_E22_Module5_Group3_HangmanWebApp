@@ -76,3 +76,67 @@ public class GameState implements Serializable {
     // Getters and setters                                                //
     // ------------------------------------------------------------------ //
 
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    public String getSecretWord() {
+        return secretWord;
+    }
+
+    public void setSecretWord(String secretWord) {
+        this.secretWord = secretWord;
+    }
+
+    public String getGuessedLetters() {
+        return guessedLetters;
+    }
+
+    public void setGuessedLetters(String guessedLetters) {
+        this.guessedLetters = guessedLetters;
+    }
+
+    public int getGuessesRemaining() {
+        return guessesRemaining;
+    }
+
+    public void setGuessesRemaining(int guessesRemaining) {
+        this.guessesRemaining = guessesRemaining;
+    }
+
+    public GameStatistics getStatistics() {
+        return statistics;
+    }
+
+    public void setStatistics(GameStatistics statistics) {
+        this.statistics = statistics;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
+    }
+
+    public boolean isWon() {
+        return won;
+    }
+
+    public void setWon(boolean won) {
+        this.won = won;
+    }
+}
