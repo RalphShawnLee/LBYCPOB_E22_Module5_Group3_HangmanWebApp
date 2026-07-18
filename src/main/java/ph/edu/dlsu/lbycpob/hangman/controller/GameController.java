@@ -64,3 +64,67 @@ public class GameController {
         return "index";
     }
 
+    // ------------------------------------------------------------------ //
+    // Start a new session                                                //
+    // ------------------------------------------------------------------ //
+
+    /**
+     * Initializes the session with a fresh {@link GameState} and picks the
+     * first secret word. Mirrors the filename-prompt and first
+     * {@code getRandomWord} call that opened {@code Hangman.run()}.
+     */
+    // UNDERSTAND: Purpose - equivalent of the "Enter the word list filename" prompt
+    //             plus the first getRandomWord() call at the top of the old run().
+    // DECISION: A brand-new GameState is created here (not reused from any prior
+    //           session) so every "Play Now" click always starts a clean round,
+    //           matching the do-while in the console version always playing at
+    //           least one game.
+    @PostMapping("/game/start")
+    public String startGame(@RequestParam("filename") String filename,
+                             HttpSession session) {
+        GameState state = new GameState();
+        state.setFilename(filename.trim());
+
+        String word = hangmanService.getRandomWord(state.getFilename());
+        state.setSecretWord(word);
+        state.setGuessesRemaining(HangmanService.MAX_GUESSES);
+        state.setMessage("A new word has been chosen. It has "
+                + word.length() + " letter(s). Good luck!");
+
+        session.setAttribute(SESSION_KEY, state);
+        return "redirect:/game/play";
+    }
+
+    // ------------------------------------------------------------------ //
+    // Display the current game state                                    //
+    // ------------------------------------------------------------------ //
+
+    /**
+     * Populates the model for the play template. No state is mutated here
+     * (GET should be idempotent); all mutation happens in the POST handlers.
+     */
+    // UNDERSTAND: Purpose - re-derives everything play.html needs (hint, art,
+    //             keyboard alphabet) from the session's GameState on every load.
+    // DECISION: Nothing here writes back to the session - GET requests must stay
+    //           idempotent (safe to refresh/bookmark), so all state changes are
+    //           confined to the POST handlers below.
+    @GetMapping("/game/play")
+    public String play(HttpSession session, Model model) {
+        GameState state = (GameState) session.getAttribute(SESSION_KEY);
+        if (state == null) {
+            // Session expired or player navigated here directly – send them home.
+            return "redirect:/";
+        }
+
+        String hint = hangmanService.createHint(state.getSecretWord(), state.getGuessedLetters());
+        String displayHint = hangmanService.formatHintForDisplay(hint);
+        String art = hangmanService.getHangmanArtAsString(state.getGuessesRemaining());
+
+        model.addAttribute("state", state);
+        model.addAttribute("hint", hint);
+        model.addAttribute("displayHint", displayHint);
+        model.addAttribute("hangmanArt", art);
+        model.addAttribute("alphabet", hangmanService.getAlphabet());
+        return "play";
+    }
+
