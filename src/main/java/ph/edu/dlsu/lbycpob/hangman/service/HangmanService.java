@@ -78,3 +78,90 @@ public class HangmanService {
         }
     }
 
+    // ------------------------------------------------------------------ //
+    // Hint building                                                      //
+    // ------------------------------------------------------------------ //
+
+    /**
+     * Builds the player-visible hint string: revealed letters in their
+     * correct positions, {@code '-'} everywhere else.
+     *
+     * <p>Algorithm is identical to the original {@code Hangman.createHint}.
+     */
+    // UNDERSTAND: Purpose - index-by-index (not value-by-value) traversal of
+    //             upperWord, replacing each character with itself or '-'
+    //             depending on whether it has been guessed.
+    // DECISION: A StringBuilder is used instead of String concatenation in the
+    //           loop, since string concatenation with += would allocate a new
+    //           String object on every iteration.
+    public String createHint(String secretWord, String guessedLetters) {
+        Objects.requireNonNull(secretWord, "secretWord must not be null");
+        Objects.requireNonNull(guessedLetters, "guessedLetters must not be null");
+
+        String upperWord = secretWord.toUpperCase();
+        String upperGuessed = guessedLetters.toUpperCase();
+
+        StringBuilder hint = new StringBuilder(upperWord.length());
+        for (int i = 0; i < upperWord.length(); i++) {
+            char c = upperWord.charAt(i);
+            hint.append(upperGuessed.indexOf(c) >= 0 ? c : '-');
+        }
+        return hint.toString();
+    }
+
+    /**
+     * Formats a raw hint for large-text display by inserting a space
+     * between every character: {@code "COMP--"} → {@code "C O M P - -"}.
+     */
+    // UNDERSTAND: Purpose - purely cosmetic spacing so play.html can render the
+    //             hint in large letter-tiles instead of one cramped word.
+    // DECISION: Guards the leading space with "if (i > 0)" so the output never
+    //           starts with a stray space character.
+    public String formatHintForDisplay(String hint) {
+        Objects.requireNonNull(hint, "hint must not be null");
+        StringBuilder sb = new StringBuilder(hint.length() * 2);
+        for (int i = 0; i < hint.length(); i++) {
+            if (i > 0) sb.append(' ');
+            sb.append(hint.charAt(i));
+        }
+        return sb.toString();
+    }
+
+    // ------------------------------------------------------------------ //
+    // ASCII art                                                          //
+    // ------------------------------------------------------------------ //
+
+    /**
+     * Returns the hangman art for {@code guessesRemaining} as a list of
+     * lines ready for the template to join with newlines.
+     */
+    public List<String> getHangmanArt(int guessesRemaining) {
+        try {
+            return renderer.render(guessesRemaining);
+        } catch (IOException e) {
+            log.error("Could not load hangman art for guessesRemaining={}", guessesRemaining, e);
+            return List.of("[art unavailable]");
+        }
+    }
+
+    /**
+     * Convenience wrapper: returns the art as a single newline-joined string
+     * suitable for {@code th:text} on a {@code <pre>} element.
+     */
+    public String getHangmanArtAsString(int guessesRemaining) {
+        return String.join("\n", getHangmanArt(guessesRemaining));
+    }
+
+    // ------------------------------------------------------------------ //
+    // Keyboard helper                                                    //
+    // ------------------------------------------------------------------ //
+
+    /** Returns the 26 upper-case letters A–Z for the on-screen keyboard. */
+    public List<Character> getAlphabet() {
+        List<Character> alphabet = new ArrayList<>(26);
+        for (char c = 'A'; c <= 'Z'; c++) {
+            alphabet.add(c);
+        }
+        return alphabet;
+    }
+}
