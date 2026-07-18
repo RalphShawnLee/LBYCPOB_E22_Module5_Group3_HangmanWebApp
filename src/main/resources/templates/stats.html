@@ -1,0 +1,54 @@
+<!--
+  AI-CHECK: Written by Claude (Anthropic) to match the manual's statistics-page
+  screenshot. Not given in the manual as HTML - built directly against the
+  "stats" model attribute (a GameStatistics record) that GameController.stats()
+  adds. Verify: gamesLost below is computed the same way StatisticsWriter does
+  (gamesPlayed - gamesWon) so the on-screen number always matches what gets
+  written to hangman_statistics.txt.
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>LBYCPOB Hangman - Statistics</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: header(false)}"></div>
+
+<div class="stats-card">
+    <h2>Session Statistics</h2>
+
+    <div class="stats-row">
+        <span>Games Played</span>
+        <span class="stats-row__value" th:text="${stats.gamesPlayed()}">0</span>
+    </div>
+    <div class="stats-row">
+        <span>Games Won</span>
+        <span class="stats-row__value" th:text="${stats.gamesWon()}">0</span>
+    </div>
+    <div class="stats-row">
+        <span>Games Lost</span>
+        <span class="stats-row__value" th:text="${stats.gamesPlayed() - stats.gamesWon()}">0</span>
+    </div>
+    <div class="stats-row">
+        <span>Win Percentage</span>
+        <span class="stats-row__value" th:text="${#numbers.formatDecimal(stats.winPercentage(), 1, 2)} + '%'">0.00%</span>
+    </div>
+    <div class="stats-row">
+        <span>Best Score</span>
+        <span class="stats-row__value" th:text="${stats.bestGuessesRemaining()} + ' guess(es) remaining'">0 guess(es) remaining</span>
+    </div>
+
+    <p class="stats-note">Statistics have been saved to hangman_statistics.txt. Thanks for playing!</p>
+
+    <div class="btn-row">
+        <a th:href="@{/}" class="btn btn--primary btn--block">Play Again</a>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+
+</body>
+</html>
