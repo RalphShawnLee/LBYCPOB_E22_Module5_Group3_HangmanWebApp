@@ -1,0 +1,95 @@
+<!--
+  AI-CHECK: Written by Claude (Anthropic) to match the manual's win/loss
+  screenshots. Not given in the manual as HTML - only as rendered screenshots -
+  built directly against the model attributes GameController.play() actually
+  adds ("state", "hint", "displayHint", "hangmanArt", "alphabet" - confirmed by
+  reading GameController.java). Verify once running: (1) the keyboard disables
+  and colour-codes a letter immediately after you guess it, (2) the banner
+  colour matches win/lose/correct/incorrect/invalid-input in every case, (3)
+  the keyboard disappears and the outcome panel appears once state.gameOver
+  is true.
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>LBYCPOB Hangman - Play</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: header(true)}"></div>
+
+<div th:if="${not #strings.isEmpty(state.message)}"
+     th:with="bad=${#strings.contains(state.message,'Incorrect') or #strings.contains(state.message,'already guessed') or #strings.contains(state.message,'Please enter') or (state.gameOver and not state.won)},
+              good=${#strings.contains(state.message,'Correct') or (state.gameOver and state.won)}"
+     class="banner"
+     th:classappend="${bad} ? 'banner--danger' : (${good} ? 'banner--success' : 'banner--info')">
+    <span th:text="${state.message}">Message</span>
+    <button type="button" class="banner__close" onclick="this.parentElement.style.display='none'">&times;</button>
+</div>
+
+<div class="game-grid">
+
+    <!-- Art panel -->
+    <div class="art-panel">
+        <div class="art-panel__label">
+            <span>Guesses remaining:</span>
+            <span><span class="art-panel__count" th:text="${state.guessesRemaining}">8</span> / 8</span>
+        </div>
+        <pre th:text="${hangmanArt}">[art]</pre>
+    </div>
+
+    <!-- Info panel -->
+    <div class="card">
+        <div class="info-panel__label">Word length: <strong th:text="${hint.length()}">?</strong> letter(s)</div>
+
+        <div class="hint" th:text="${displayHint}">- - -</div>
+
+        <div class="badge-row__label">Guessed letters:</div>
+        <div class="badges">
+            <span th:each="letter : ${alphabet}"
+                  th:if="${state.guessedLetters.contains(letter.toString())}"
+                  th:text="${letter}"
+                  th:class="${state.secretWord.contains(letter.toString())} ? 'badge badge--correct' : 'badge badge--incorrect'">A</span>
+        </div>
+
+        <!-- Letter keyboard: only while the round is still in progress -->
+        <form th:if="${!state.gameOver}" th:action="@{/game/guess}" method="post">
+            <div class="keyboard">
+                <button th:each="letter : ${alphabet}"
+                        th:with="guessed=${state.guessedLetters.contains(letter.toString())},
+                                 correct=${state.secretWord.contains(letter.toString())}"
+                        type="submit" name="letter" th:value="${letter}" th:text="${letter}"
+                        th:disabled="${guessed}"
+                        th:class="${guessed} ? (${correct} ? 'key key--correct' : 'key key--incorrect') : 'key'">A
+                </button>
+            </div>
+        </form>
+
+        <!-- Outcome panel: only once the round has ended -->
+        <div th:if="${state.gameOver}"
+             class="outcome-panel"
+             th:classappend="${state.won} ? 'outcome-panel--win' : 'outcome-panel--lose'">
+            <div class="outcome-panel__title" th:text="${state.won} ? 'You Won!' : 'Game Over'">Result</div>
+            <div class="outcome-panel__subtitle">The word was <strong th:text="${state.secretWord}">WORD</strong></div>
+            <div class="btn-row">
+                <form th:action="@{/game/again}" method="post" style="flex:1">
+                    <button type="submit" class="btn btn--primary btn--block">Play Again</button>
+                </form>
+                <a th:href="@{/game/stats}" class="btn btn--ghost" style="flex:1; color:#232527; border-color:#e1e3e6;">View Statistics</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="session-line"
+     th:with="s=${state.statistics}"
+     th:text="'Session: Played ' + ${s.gamesPlayed()} + ' | Won ' + ${s.gamesWon()} + ' | Win% ' + ${#numbers.formatDecimal(s.winPercentage(), 1, 2)} + '%'">
+    Session: Played 0 | Won 0 | Win% 0.00%
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+
+</body>
+</html>
