@@ -128,3 +128,90 @@ public class GameController {
         return "play";
     }
 
+    // ------------------------------------------------------------------ //
+    // Process one letter guess                                          //
+    // ------------------------------------------------------------------ //
+
+    /**
+     * The heart of the web migration: everything that used to happen inside
+     * the {@code while(true)} loop of {@code Hangman.playOneGame()} now
+     * happens in this single POST handler, then the player is redirected
+     * back to the GET so the browser's history contains a safe, refreshable
+     * URL.
+     */
+    // UNDERSTAND: Purpose - validates one submitted letter, records it, and updates
+    //             guessesRemaining / gameOver / won / statistics accordingly.
+    // DECISION: if-else chain (not switch) chosen because the branches are guard
+    //           clauses over string/char state, not a single value being matched -
+    //           each early "return redirect:/game/play" keeps the rest of the
+    //           method free of deep nesting.
+    @PostMapping("/game/guess")
+    public String guess(@RequestParam("letter") String letterInput,
+                         HttpSession session) {
+
+        GameState state = (GameState) session.getAttribute(SESSION_KEY);
+        if (state == null || state.isGameOver()) {
+            return "redirect:/game/play";
+        }
+
+        // --- Input validation (replaces Hangman.readGuess validation) ---
+        String cleaned = letterInput.trim().toUpperCase();
+        if (cleaned.length() != 1
+                || cleaned.charAt(0) < 'A'
+                || cleaned.charAt(0) > 'Z') {
+            state.setMessage("Please enter a single letter from A to Z.");
+            session.setAttribute(SESSION_KEY, state);
+            return "redirect:/game/play";
+        }
+
+        char letter = cleaned.charAt(0);
+        if (state.getGuessedLetters().indexOf(letter) >= 0) {
+            state.setMessage("You already guessed \"" + letter
+                    + "\". Choose a different letter.");
+            session.setAttribute(SESSION_KEY, state);
+            return "redirect:/game/play";
+        }
+
+        // --- Record the guess ---
+        state.setGuessedLetters(state.getGuessedLetters() + letter);
+
+        // --- Evaluate correctness ---
+        if (state.getSecretWord().indexOf(letter) >= 0) {
+            // Correct guess
+            String hint = hangmanService.createHint(
+                    state.getSecretWord(), state.getGuessedLetters());
+
+            if (!hint.contains("-")) {
+                // All letters revealed – player wins
+                state.setGameOver(true);
+                state.setWon(true);
+                state.setStatistics(
+                        state.getStatistics().withGame(true, state.getGuessesRemaining()));
+                state.setMessage("You win! The word was \""
+                        + state.getSecretWord() + "\". "
+                        + state.getGuessesRemaining() + " guess(es) remaining.");
+            } else {
+                state.setMessage("Correct! \"" + letter + "\" is in the word.");
+            }
+        } else {
+            // Incorrect guess
+            state.setGuessesRemaining(state.getGuessesRemaining() - 1);
+
+            if (state.getGuessesRemaining() == 0) {
+                // No guesses left – player loses
+                state.setGameOver(true);
+                state.setWon(false);
+                state.setStatistics(state.getStatistics().withGame(false, 0));
+                state.setMessage("You lose. The word was \""
+                        + state.getSecretWord() + "\".");
+            } else {
+                state.setMessage("Incorrect! \"" + letter
+                        + "\" is not in the word. "
+                        + state.getGuessesRemaining() + " guess(es) left.");
+            }
+        }
+
+        session.setAttribute(SESSION_KEY, state);
+        return "redirect:/game/play";
+    }
+
