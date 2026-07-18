@@ -215,3 +215,88 @@ public class GameController {
         return "redirect:/game/play";
     }
 
+    // ------------------------------------------------------------------ //
+    // Play another round (mirrors the "Play again? Y/N" prompt)         //
+    // ------------------------------------------------------------------ //
+
+    /**
+     * Resets game fields but preserves the accumulated {@link GameStatistics},
+     * exactly as {@code Hangman.run()}'s {@code while (playAgain)} loop did.
+     */
+    // UNDERSTAND: Purpose - starts a new round without losing the running session
+    //             totals (gamesPlayed/gamesWon/bestGuessesRemaining).
+    // DECISION: A fresh GameState is built and only filename + statistics are
+    //           copied across, rather than mutating the old GameState in place,
+    //           so stale per-round fields (guessedLetters, message, gameOver)
+    //           can never leak into the new round.
+    @PostMapping("/game/again")
+    public String playAgain(HttpSession session) {
+        GameState old = (GameState) session.getAttribute(SESSION_KEY);
+        if (old == null) {
+            return "redirect:/";
+        }
+
+        GameState fresh = new GameState();
+        fresh.setFilename(old.getFilename());
+        fresh.setStatistics(old.getStatistics());   // carry over running totals
+
+        String word = hangmanService.getRandomWord(old.getFilename());
+        fresh.setSecretWord(word);
+        fresh.setGuessesRemaining(HangmanService.MAX_GUESSES);
+        fresh.setMessage("New round! The word has "
+                + word.length() + " letter(s). Good luck!");
+
+        session.setAttribute(SESSION_KEY, fresh);
+        return "redirect:/game/play";
+    }
+
+    // ------------------------------------------------------------------ //
+    // View statistics and end session                                   //
+    // ------------------------------------------------------------------ //
+
+    /**
+     * Mirrors {@code Hangman.stats()} plus the call to
+     * {@code StatisticsWriter.writeStats()}. Session is invalidated after
+     * writing so the next visit to {@code /} starts clean.
+     */
+    // UNDERSTAND: Purpose - shows the session summary and persists it to
+    //             hangman_statistics.txt, then ends the session.
+    // DECISION: session.invalidate() is called last (after reading everything
+    //           needed for the model and the file write) so no data is lost by
+    //           invalidating too early.
+    @GetMapping("/game/stats")
+    public String stats(HttpSession session, Model model) {
+        GameState state = (GameState) session.getAttribute(SESSION_KEY);
+        if (state == null || state.getStatistics().gamesPlayed() == 0) {
+            return "redirect:/";
+        }
+
+        GameStatistics s = state.getStatistics();
+        model.addAttribute("stats", s);
+
+        statisticsWriter.writeStats(
+                s.gamesPlayed(),
+                s.gamesWon(),
+                s.gamesPlayed() - s.gamesWon(),
+                s.winPercentage(),
+                s.bestGuessesRemaining());
+
+        session.invalidate();
+        return "stats";
+    }
+
+    // ------------------------------------------------------------------ //
+    // Abandon session                                                    //
+    // ------------------------------------------------------------------ //
+
+    // UNDERSTAND: Purpose - lets the player bail out of a round entirely (the
+    //             "Reset" link in the header) without viewing statistics first.
+    // DECISION: A single-line invalidate-and-redirect - deliberately does not
+    //           write a statistics file, since an abandoned session was never
+    //           completed.
+    @GetMapping("/game/reset")
+    public String reset(HttpSession session) {
+        session.invalidate();
+        return "redirect:/";
+    }
+}
