@@ -168,3 +168,59 @@ select, input[type="text"] {
   background: var(--color-surface);
 }
 
+/* ---------------------------------------------------------------- */
+/* Buttons                                                           */
+/* ---------------------------------------------------------------- */
+
+.btn {
+  display: inline-block;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+}
+
+.btn--primary { background: var(--color-accent); color: #1a1200; }
+.btn--primary:hover { background: var(--color-accent-dark); }
+.btn--success { background: var(--color-success); color: #fff; }
+.btn--danger  { background: var(--color-danger);  color: #fff; }
+.btn--ghost   { background: rgba(255,255,255,0.08); color: var(--color-header-text); border: 1px solid rgba(255,255,255,0.25); }
+.btn--ghost:hover { background: rgba(255,255,255,0.16); }
+.btn--block { width: 100%; }
+.btn-row { display: flex; gap: 10px; margin-top: 14px; }
+
+/* ---------------------------------------------------------------- */
+/* Feedback banner                                                   */
+/* ---------------------------------------------------------------- */
+
+.banner {
+  max-width: 960px;
+  margin: 20px auto 0;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.banner--info    { background: var(--color-info-bg);    color: var(--color-info); }
+.banner--success { background: var(--color-success-bg); color: var(--color-success); }
+.banner--warn    { background: var(--color-warn-bg);     color: var(--color-warn); }
+.banner--danger  { background: var(--color-danger-bg);   color: var(--color-danger); }
+
+.banner__close {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.6;
+}
+
