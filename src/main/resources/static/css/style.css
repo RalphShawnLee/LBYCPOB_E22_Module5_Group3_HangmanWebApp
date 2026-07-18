@@ -43,3 +43,60 @@ body {
 
 a { color: inherit; }
 
+/* ---------------------------------------------------------------- */
+/* Header + hero                                                     */
+/* ---------------------------------------------------------------- */
+
+.site-header {
+  background: var(--color-header-bg);
+  color: var(--color-header-text);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.site-header__title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+}
+
+.site-header__name {
+  color: var(--color-accent);
+}
+
+.site-header__nav {
+  display: flex;
+  gap: 8px;
+}
+
+.hero {
+  background: linear-gradient(180deg, #262b34 0%, #1a1d23 100%);
+  color: #f4f1ea;
+  text-align: center;
+  padding: 44px 24px 52px;
+}
+
+.hero__ascii {
+  display: inline-block;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: #6f7684;
+  white-space: pre;
+  margin-bottom: 8px;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: 2rem;
+}
+
+.hero p {
+  margin: 0;
+  color: #b7bcc6;
+}
+
