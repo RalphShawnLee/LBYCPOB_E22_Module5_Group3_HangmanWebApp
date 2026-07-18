@@ -1,0 +1,66 @@
+<!--
+  AI-CHECK: Written by Claude (Anthropic) to match the manual's screenshot of the
+  welcome page. Not given in the manual as HTML - only as a rendered screenshot -
+  so this markup is an original implementation of that layout, built against the
+  GameController.index() method which passes no model attributes (confirmed by
+  reading GameController.java: "public String index() { return "index"; }").
+  Verify: the three option-element values below (test.txt, words.txt, large.txt) are
+  the exact filenames under src/main/resources/game-assets/words/ in this project.
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>LBYCPOB Hangman</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: header(false)}"></div>
+
+<section class="hero">
+    <div class="hero__ascii">  +----------+
+  |          |
+  |          O
+  |         /|\
+  |         / \
+  |        /   \
+ ----------
+ ##########</div>
+    <h1>Welcome to Hangman</h1>
+    <p>A classic word-guessing game. Pick a word list and start guessing!</p>
+</section>
+
+<div class="cards">
+    <div class="card">
+        <h2>How to Play</h2>
+        <ul class="checklist">
+            <li>A secret word is chosen at random.</li>
+            <li>Click a letter button to guess it.</li>
+            <li>A correct guess reveals that letter in the word.</li>
+            <li>An incorrect guess adds a body part to the gallows.</li>
+            <li>You have 8 incorrect guesses before the game is lost.</li>
+            <li>Reveal all letters before the man is hanged to win!</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>Start a New Game</h2>
+        <form th:action="@{/game/start}" method="post">
+            <div class="form-row">
+                <label for="filename">Choose a word list:</label>
+                <select id="filename" name="filename">
+                    <option value="test.txt">test.txt &mdash; Test list (2 words)</option>
+                    <option value="words.txt" selected>words.txt &mdash; Medium list</option>
+                    <option value="large.txt">large.txt &mdash; Large list</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn--primary btn--block">Play Now</button>
+        </form>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+
+</body>
+</html>

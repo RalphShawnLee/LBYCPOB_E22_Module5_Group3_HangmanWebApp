@@ -1,0 +1,27 @@
+<!--
+  AI-CHECK: Written by Claude (Anthropic). Not given in the manual - the manual
+  only shows a "fragments" folder in the project-structure screenshot, without
+  its contents. Verify: header(showNav) is called with "true" only from
+  play.html (where "View Stats"/"Reset" make sense) and "false" from index.html
+  and stats.html.
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<header th:fragment="header(showNav)" class="site-header">
+    <div class="site-header__title">
+        LBYCPOB Hangman by <span class="site-header__name">&mdash; John Sean Nicole P. Neri </span>
+    </div>
+    <nav th:if="${showNav}" class="site-header__nav">
+        <a th:href="@{/game/stats}" class="btn btn--ghost">View Stats</a>
+        <a th:href="@{/game/reset}" class="btn btn--ghost">Reset</a>
+    </nav>
+</header>
+
+<footer th:fragment="footer" class="site-footer">
+    Hangman &copy; 2026 &middot; LBYCPOB Object-Oriented Programming Laboratory
+</footer>
+
+</body>
+</html>
