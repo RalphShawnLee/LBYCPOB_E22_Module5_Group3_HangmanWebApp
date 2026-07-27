@@ -26,36 +26,5 @@ public final class AsciiArtRenderer implements HangmanRenderer {
 
     private final String resourceBasePath;
 
-    // UNDERSTAND: Purpose - stores the classpath folder (e.g. "/game-assets/hangman-art")
-    //             that display0.txt ... display8.txt live under.
-    // DECISION: Trailing slash is stripped once here (not on every render() call) so
-    //           the resource-path concatenation in render() never produces a
-    //           double-slash regardless of how the caller passes resourceBasePath.
-    public AsciiArtRenderer(String resourceBasePath) {
-        Objects.requireNonNull(resourceBasePath, "resourceBasePath must not be null");
-        if (resourceBasePath.isBlank()) {
-            throw new IllegalArgumentException("resourceBasePath must not be blank");
-        }
-        this.resourceBasePath = resourceBasePath.endsWith("/")
-                ? resourceBasePath.substring(0, resourceBasePath.length() - 1)
-                : resourceBasePath;
-    }
 
-    // UNDERSTAND: Purpose - maps a guesses-remaining count (0-8) to the matching
-    //             pre-drawn ASCII art file and returns its lines.
-    // DECISION: Range-validates guessesRemaining with an explicit if before building
-    //           the file path, so an out-of-range call fails fast with a clear
-    //           IllegalArgumentException instead of a confusing "resource not found".
-    @Override
-    public List<String> render(int guessesRemaining) throws IOException {
-        if (guessesRemaining < MIN_GUESSES_REMAINING
-                || guessesRemaining > MAX_GUESSES_REMAINING) {
-            throw new IllegalArgumentException(
-                    "guessesRemaining must be between " + MIN_GUESSES_REMAINING
-                            + " and " + MAX_GUESSES_REMAINING
-                            + ", got " + guessesRemaining);
-        }
-        String resourcePath = resourceBasePath + "/display" + guessesRemaining + ".txt";
-        return ClasspathResources.readLines(resourcePath); // was: for-loop + IO.println
-    }
 }
