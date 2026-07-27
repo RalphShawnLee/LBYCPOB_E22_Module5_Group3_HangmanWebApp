@@ -47,26 +47,5 @@ public final class ClasspathWordRepository implements WordRepository {
     //           trusting the file to be perfectly formatted) since a stray blank
     //           line at the end of a word list is an easy, easy-to-miss mistake
     //           that would otherwise let the game pick an empty "word".
-    @Override
-    public String getRandomWord(String filename) throws IOException {
-        Objects.requireNonNull(filename, "filename must not be null");
-        if (filename.isBlank()) {
-            throw new IllegalArgumentException("filename must not be blank");
-        }
 
-        String resourcePath = resourceBasePath + "/" + filename;
-        List<String> rawLines = ClasspathResources.readLines(resourcePath);
-
-        List<String> words = new ArrayList<>();
-        for (String line : rawLines) {
-            line = line.trim();
-            if (!line.isEmpty()) {
-                words.add(line.toUpperCase());
-            }
-        }
-        if (words.isEmpty()) {
-            throw new IOException("Word list resource contains no words: " + resourcePath);
-        }
-        return words.get(random.nextInt(words.size()));
-    }
 }
